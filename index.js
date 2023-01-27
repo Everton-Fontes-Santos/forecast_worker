@@ -7,11 +7,15 @@ const queue = require('./queue')
 const timeframe = process.env.TIMEFRAME || 15
 const minutes = 60 * timeframe * 1000
 
-
+let send = false
 const main = async ()=>{
     const date = new Date()
-    if(date.getMinutes() % timeframe !== 0 ) return
-    
+    if(date.getMinutes() % timeframe !== 0 ){
+        send = false
+        return
+    }
+    if(send) return
+    send=true
     const dataToSend = [[]]
     const stock = new Stocks(process.env.API_KEY)
     const tickers = await stock.timeSeries({
