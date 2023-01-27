@@ -9,6 +9,9 @@ const minutes = 60 * timeframe * 1000
 
 
 const main = async ()=>{
+    const date = new Date()
+    if(date.getMinutes() % timeframe !== 0 ) return
+    
     const dataToSend = [[]]
     const stock = new Stocks(process.env.API_KEY)
     const tickers = await stock.timeSeries({
@@ -32,4 +35,4 @@ const main = async ()=>{
     await queue.publish(process.env.CHANNEL, scaledPrediction)
 }
 console.log(minutes)
-setInterval(main, minutes);
+setInterval(main, 1000);
