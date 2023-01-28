@@ -5,11 +5,13 @@ const { forecast } = require('./MinMaxScaler')
 const queue = require('./queue')
 
 const timeframe = process.env.TIMEFRAME || 15
-const minutes = 60 * timeframe * 1000
 
 let send = false
 const main = async ()=>{
     const date = new Date()
+    if(date.getDay() === 0 || date.getDay() === 6){
+        return
+    }
     if(date.getMinutes() % timeframe !== 0 ){
         send = false
         return
@@ -36,7 +38,13 @@ const main = async ()=>{
     if(!data) return
     const prediction = data.predictions[0][0]
     const scaledPrediction = forecast.m15.inverseScale(prediction)
-    await queue.publish(process.env.CHANNEL, scaledPrediction)
+    const last_close = tickers.at(0).close
+    await queue.publish(process.env.CHANNEL, {
+        forecast: scaledPrediction,
+        last_close,
+        timeframe
+    })
 }
-console.log(minutes)
-setInterval(main, 1000);
+console.log("Starting worker")
+// setInterval(main, 1000);
+main()
